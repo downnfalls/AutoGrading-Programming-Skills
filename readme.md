@@ -12,4 +12,4 @@ source .venv/bin/activate
 pip install -r requirements.txt
 
 TEST
-https://docs.google.com/spreadsheets/d/REDACTED/edit?gid=0#gid=0
+https://docs.google.com/spreadsheets/d/REDACTED
