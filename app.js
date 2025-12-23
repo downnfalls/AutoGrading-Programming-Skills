@@ -2,6 +2,7 @@ import fetch from "node-fetch";
 import { load } from "cheerio";
 import fs from "fs";
 
+
 const GROUP_ID = "REDACTED";
 
 async function fetchGroupHTML() {
