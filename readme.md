@@ -10,3 +10,8 @@ python -m venv .venv
 source .venv/bin/activate
 
 pip install -r requirements.txt
+```
+
+## Test
+
+[Open Google Sheet (Link)](https://docs.google.com/spreadsheets/d/REDACTED)
