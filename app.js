@@ -68,8 +68,11 @@ async function fetchContestSolvedMap(contest) {
     const memberId = sub[0];
     const problemIndex = sub[1];
     const verdict = sub[2];
+    const submit_time = sub[3];
     const score = sub[4];
     const fullScore = sub[5];
+
+    if (submit_time >= json.length / 1000) continue;
 
     scores[memberId] ??= {};
     scores[memberId][problemIndex] ??= {
@@ -133,7 +136,7 @@ async function fetchContestSolvedMap(contest) {
     const members = [...members1, ...members2];
     const contests = [...contests1, ...contests2];
 
-    console.log(contests);
+    //console.log(contests);
 
     for (const contest of contests) {
         contestSolvedMaps[contest.name] = await fetchContestSolvedMap(contest);
