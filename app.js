@@ -3,11 +3,12 @@ import { load } from "cheerio";
 import fs from "fs";
 
 
-const GROUP_ID = "REDACTED";
+const GROUP_ID1 = "REDACTED";
+const GROUP_ID2 = "REDACTED";
 
-async function fetchGroupHTML() {
+async function fetchGroupHTML(groupId) {
   const res = await fetch(
-    `https://vjudge.net/group/${GROUP_ID}`,
+    `https://vjudge.net/group/${groupId}`,
     {
       headers: {
         "User-Agent": "Mozilla/5.0",
@@ -51,9 +52,10 @@ async function getContests(html) {
   }));
 }
 
-async function fetchContestSolvedMap(contestId) {
+let contestSolvedMaps = {};
+async function fetchContestSolvedMap(contest) {
   const res = await fetch(
-    `https://vjudge.net/contest/rank/single/${contestId}`,
+    `https://vjudge.net/contest/rank/single/${contest.id}`,
     { headers: { "User-Agent": "Mozilla/5.0" } }
   );
   const json = await res.json();
@@ -109,7 +111,7 @@ async function fetchContestSolvedMap(contestId) {
     totalScore[m] = totalScore[m] / maxIndex;
   }
 
-  let convertedKey = {}
+  let convertedKey = contestSolvedMaps[contest.name] !== undefined ? contestSolvedMaps[contest.name] : {};
 
   for (const k in totalScore) {
     convertedKey[json.participants[k][0]] = totalScore[k] * 10;
@@ -120,31 +122,47 @@ async function fetchContestSolvedMap(contestId) {
 
 (async () => {
   try {
-    const html = await fetchGroupHTML();
-    const members = await extractMembers(html);
-    const contests = await getContests(html);
+    const html1 = await fetchGroupHTML(GROUP_ID1);
+    let members1 = await extractMembers(html1);
+    let contests1 = await getContests(html1);
 
-    const contestSolvedMaps = {};
+    const html2 = await fetchGroupHTML(GROUP_ID2);
+    let members2 = await extractMembers(html2);
+    let contests2 = await getContests(html2);
+
+    const members = [...members1, ...members2];
+    const contests = [...contests1, ...contests2];
+
+    console.log(contests);
+
     for (const contest of contests) {
-        contestSolvedMaps[contest.name] = await fetchContestSolvedMap(contest.id);
+        contestSolvedMaps[contest.name] = await fetchContestSolvedMap(contest);
     }
+
+    // console.log(members.length);
+    // console.log(contestSolvedMaps);
 
     console.log("👥 Members:");
 
     let outputJson = {};
-    const output = members.map(m => {
-        const row = {
-            member: extract10DigitId(m),
-        }
-        for (const contest of contests) {
-            outputJson[row.member] ??= {};
 
-            const solved = contestSolvedMaps[contest.name][m.username] ?? 0;
-            outputJson[row.member][contest.name] = solved; 
-            row[contest.name] = solved;
-        }
-        return row;
-    })
+    const output = members
+        .map(m => {
+            const row = {
+                member: extract10DigitId(m),
+            };
+
+            for (const contest of contests) {
+                outputJson[row.member] ??= {};
+
+                const solved = contestSolvedMaps[contest.name][m.username] ?? 0;
+                outputJson[row.member][contest.name] = solved;
+                row[contest.name] = solved;
+            }
+
+            return row;
+        })
+        .sort((a, b) => a.member.localeCompare(b.member)); // 🔤 alphabet sort
 
     console.table(output);
 
