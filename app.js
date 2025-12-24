@@ -52,6 +52,8 @@ async function getContests(html) {
   }));
 }
 
+
+let rawstr = "";
 let contestSolvedMaps = {};
 async function fetchContestSolvedMap(contest) {
   const res = await fetch(
@@ -59,7 +61,8 @@ async function fetchContestSolvedMap(contest) {
     { headers: { "User-Agent": "Mozilla/5.0" } }
   );
   const json = await res.json();
-  //console.log(json);
+  rawstr += JSON.stringify(json) + "\n";
+  // console.log(json);
 
   let maxIndex = -1;
   let scores = {}
@@ -129,11 +132,12 @@ async function fetchContestSolvedMap(contest) {
     const html2 = await fetchGroupHTML(GROUP_ID2);
     let members2 = await extractMembers(html2);
     let contests2 = await getContests(html2);
+    // console.log(contests2);
 
     const members = [...members1, ...members2];
     const contests = [...contests1, ...contests2];
 
-    console.log(contests);
+    // console.log(contests);
 
     for (const contest of contests) {
         contestSolvedMaps[contest.name] = await fetchContestSolvedMap(contest);
@@ -141,6 +145,7 @@ async function fetchContestSolvedMap(contest) {
 
     // console.log(members.length);
     // console.log(contestSolvedMaps);
+    fs.writeFileSync("rawfile.json", rawstr, "utf8");
 
     console.log("👥 Members:");
 
@@ -164,7 +169,7 @@ async function fetchContestSolvedMap(contest) {
         })
         .sort((a, b) => a.member.localeCompare(b.member)); // 🔤 alphabet sort
 
-    console.table(output);
+    // console.table(output);
 
     const jsonStr = JSON.stringify(outputJson, null, 2); // pretty print with 2 spaces
 
