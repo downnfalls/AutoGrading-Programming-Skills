@@ -1,6 +1,6 @@
 ## Setup
 
-Install Node.js 20.19+ (including npm) and Python 3.9+, then run these commands from the project folder:
+Install Node.js 20.19+ (including npm) and Python 3.10+, then run these commands from the project folder:
 
 ```bash
 python -m venv .venv
