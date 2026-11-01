@@ -1,12 +1,28 @@
 import json
+import os
+from pathlib import Path
 import gspread
 from google.oauth2.service_account import Credentials
+from dotenv import load_dotenv
 
-SHEET_ID = "REDACTED"
+load_dotenv(Path(__file__).resolve().parent / ".env")
+
+required = ("GOOGLE_SHEET_ID", "GOOGLE_PROJECT_ID", "GOOGLE_CLIENT_EMAIL", "GOOGLE_PRIVATE_KEY")
+missing = [name for name in required if not os.environ.get(name, "").strip()]
+if missing:
+    raise SystemExit("Missing environment variables: " + ", ".join(missing))
+
+SHEET_ID = os.environ["GOOGLE_SHEET_ID"]
 
 # ===== Auth =====
-creds = Credentials.from_service_account_file(
-    "credentials.json",
+creds = Credentials.from_service_account_info(
+    {
+        "type": "service_account",
+        "project_id": os.environ["GOOGLE_PROJECT_ID"],
+        "client_email": os.environ["GOOGLE_CLIENT_EMAIL"],
+        "private_key": os.environ["GOOGLE_PRIVATE_KEY"].replace("\\n", "\n"),
+        "token_uri": "https://oauth2.googleapis.com/token",
+    },
     scopes=["https://www.googleapis.com/auth/spreadsheets"]
 )
 gc = gspread.authorize(creds)

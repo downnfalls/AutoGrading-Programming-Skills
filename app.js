@@ -1,10 +1,17 @@
 import fetch from "node-fetch";
 import { load } from "cheerio";
 import fs from "fs";
+import dotenv from "dotenv";
+import { fileURLToPath } from "node:url";
 
+dotenv.config({ path: fileURLToPath(new URL(".env", import.meta.url)), quiet: true });
 
-const GROUP_ID1 = "REDACTED";
-const GROUP_ID2 = "REDACTED";
+const GROUP_ID1 = process.env.VJUDGE_GROUP_ID1;
+const GROUP_ID2 = process.env.VJUDGE_GROUP_ID2;
+if (!GROUP_ID1?.trim() || !GROUP_ID2?.trim()) {
+  console.error("Set VJUDGE_GROUP_ID1 and VJUDGE_GROUP_ID2 in .env");
+  process.exit(1);
+}
 
 async function fetchGroupHTML(groupId) {
   const res = await fetch(

@@ -1,0 +1,14 @@
+.env
+.env.*
+!.env.example
+credentials.json
+*service-account*.json
+*.pem
+*.key
+.venv/
+venv/
+node_modules/
+__pycache__/
+*.py[cod]
+output.json
+rawfile.json
